@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemische Reaktionswege Vergleich</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        nav {
+            background-color: #f9f9f9;
+            padding: 10px 0;
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        li {
+            margin: 0 15px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .selection {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #text-container {
+            text-align: center;
+            margin: 40px;
+            display: none;
+            transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+        }
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showText('induktiv')">Induktiver Effekt</a></li>
+            <li><a href="#" onclick="showText('mesomer')">Mesomerer Effekt</a></li>
+            <li><a href="#" onclick="showText('markovnikov')">Markovnikov-Regel</a></li>
+            <li><a href="#" onclick="showText('credits')">Credits</a></li>
+        </ul>
+    </nav>
+
+    <h1>Vergleich Chemischer Reaktionswege</h1>
+    <div class="container">
+        <div class="selection">
+            <label for="reaktion1">Wähle Reaktionsweg 1:</label>
+            <select id="reaktion1"></select>
+            <label for="reaktion2">Wähle Reaktionsweg 2:</label>
+            <select id="reaktion2"></select>
+        </div>
+        <table id="vergleichstabelle"></table>
+    </div>
+
+    <div id="text-container"></div>
+
+    <script>
+        const reaktionsDaten = {
+            "Radikalische Substitution": {
+                Edukte: { Wort: 'Methan und Chlor', Symbol: 'CH₄ + Cl₂', Lewis: 'CH₄ + Cl₂' },
+                Produkte: { Wort: 'Chlormethan und Wasserstoffchlorid', Symbol: 'CH₃Cl + HCl', Lewis: 'CH₃Cl + HCl' },
+                Gesamtreaktion: 'CH₄ + Cl₂ → CH₃Cl + HCl',
+                Stoffebene: 'Methan reagiert mit Chlor, wobei Chlormethan und Wasserstoffchlorid entstehen.',
+                Teilchenebene: 'Ein Chlor-Radikal spaltet ein Chlor-Molekül, reagiert mit einem Methan-Molekül und bildet Chlormethan.',
+                Mechanismus: 'Radikalische Substitution',
+                Reagierendes_Objekt: 'Chlor-Radikale',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            },
+            "Nucleophile Substitution": {
+                Edukte: { Wort: 'Chlormethan und Hydroxidion', Symbol: 'CH₃Cl + OH⁻', Lewis: 'CH₃Cl + OH⁻' },
+                Produkte: { Wort: 'Methanol und Chloridion', Symbol: 'CH₃OH + Cl⁻', Lewis: 'CH₃OH + Cl⁻' },
+                Gesamtreaktion: 'CH₃Cl + OH⁻ → CH₃OH + Cl⁻',
+                Stoffebene: 'Chlormethan reagiert mit Hydroxidionen zu Methanol und Chloridionen.',
+                Teilchenebene: 'Ein Hydroxidion greift das Kohlenstoffatom im Chlormethan an und verdrängt das Chlorion.',
+                Mechanismus: 'Nucleophile Substitution',
+                Reagierendes_Objekt: 'Hydroxidionen',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            },
+            "Elektrophile Substitution": {
+                Edukte: { Wort: 'Benzol und Brom', Symbol: 'C₆H₆ + Br₂', Lewis: 'C₆H₆ + Br₂' },
+                Produkte: { Wort: 'Brombenzol', Symbol: 'C₆H₅Br', Lewis: 'C₆H₅Br' },
+                Gesamtreaktion: 'C₆H₆ + Br₂ → C₆H₅Br',
+                Stoffebene: 'Benzol reagiert mit Brom und bildet Brombenzol.',
+                Teilchenebene: 'Ein Brommolekül spaltet sich in ein Brom-Radikal und ein Brom-Kation auf, das dann mit dem Benzol reagiert.',
+                Mechanismus: 'Elektrophile Substitution',
+                Reagierendes_Objekt: 'Brom-Kationen',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            },
+            "Veresterung": {
+                Edukte: { Wort: 'Essigsäure und Ethanol', Symbol: 'CH₃COOH + C₂H₅OH', Lewis: 'CH₃COOH + C₂H₅OH' },
+                Produkte: { Wort: 'Essigester und Wasser', Symbol: 'CH₃COOC₂H₅ + H₂O', Lewis: 'CH₃COOC₂H₅ + H₂O' },
+                Gesamtreaktion: 'CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O',
+                Stoffebene: 'Essigsäure reagiert mit Ethanol und bildet Essigester und Wasser.',
+                Teilchenebene: 'Ein Hydroxidion aus der Essigsäure verdrängt das Wasserstoffatom des Ethanolmoleküls und bildet einen Ester.',
+                Mechanismus: 'Veresterung',
+                Reagierendes_Objekt: 'Hydroxidionen',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            },
+            "Eleminierung": {
+                Edukte: { Wort: 'Ethanol', Symbol: 'C₂H₅OH', Lewis: 'C₂H₅OH' },
+                Produkte: { Wort: 'Ethen und Wasser', Symbol: 'C₂H₄ + H₂O', Lewis: 'C₂H₄ + H₂O' },
+                Gesamtreaktion: 'C₂H₅OH → C₂H₄ + H₂O',
+                Stoffebene: 'Ethanol wird zu Ethen und Wasser eliminiert.',
+                Teilchenebene: 'Ein Wasserstoffatom und eine Hydroxylgruppe werden abgespalten, um Ethen zu bilden.',
+                Mechanismus: 'Eliminierung',
+                Reagierendes_Objekt: 'Katalysatoren',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            },
+            "Elektrophile Addition": {
+                Edukte: { Wort: 'Ethen und Brom', Symbol: 'C₂H₄ + Br₂', Lewis: 'C₂H₄ + Br₂' },
+                Produkte: { Wort: '1,2-Dibromethan', Symbol: 'C₂H₄Br₂', Lewis: 'C₂H₄Br₂' },
+                Gesamtreaktion: 'C₂H₄ + Br₂ → C₂H₄Br₂',
+                Stoffebene: 'Ethen reagiert mit Brom und bildet 1,2-Dibromethan.',
+                Teilchenebene: 'Das Brommolekül spaltet sich auf und bildet ein Brom-Kation, das mit Ethen reagiert.',
+                Mechanismus: 'Elektrophile Addition',
+                Reagierendes_Objekt: 'Brommoleküle',
+                Besonderheiten: 'Induktiver Effekt und Markovnikov-Regel'
+            },
+            "Polykondensation": {
+                Edukte: { Wort: 'Dicarbonsäure und Diol', Symbol: 'HOOC-R-COOH + HO-R-OH', Lewis: 'HOOC-R-COOH + HO-R-OH' },
+                Produkte: { Wort: 'Polyester und Wasser', Symbol: 'Polyester + H₂O', Lewis: 'Polyester + H₂O' },
+                Gesamtreaktion: 'HOOC-R-COOH + HO-R-OH → Polyester + H₂O',
+                Stoffebene: 'Dicarbonsäuren und Diolen reagieren zu Polyestern und Wasser.',
+                Teilchenebene: 'Eine Kondensationsreaktion entfernt Wasser und verbindet Monomere zu Polymeren.',
+                Mechanismus: 'Polykondensation',
+                Reagierendes_Objekt: 'Dicarbonsäuren und Diolen',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            },
+            "Polymerisation": {
+                Edukte: { Wort: 'Ethen', Symbol: 'C₂H₄', Lewis: 'C₂H₄' },
+                Produkte: { Wort: 'Polyethylen', Symbol: 'C₂H₄n', Lewis: 'C₂H₄n' },
+                Gesamtreaktion: 'C₂H₄ → C₂H₄n',
+                Stoffebene: 'Ethen polymerisiert zu Polyethylen.',
+                Teilchenebene: 'Ein Ethenmolekül öffnet seine Doppelbindung und reagiert mit weiteren Ethenmolekülen.',
+                Mechanismus: 'Addition (Polymerisation)',
+                Reagierendes_Objekt: 'Ethenmoleküle',
+                Besonderheiten: 'Induktiver Effekt und Mesomerer Effekt'
+            }
+        };
+
+        function erstelleOptionen(selectElement) {
+            for (let reaktion in reaktionsDaten) {
+                let option = document.createElement('option');
+                option.value = reaktion;
+                option.textContent = reaktion;
+                selectElement.appendChild(option);
+            }
+        }
+
+        function formatiereEigenschaft(eigenschaft) {
+            return `<strong>Wort:</strong> ${eigenschaft.Wort}<br>
+                    <strong>Symbol:</strong> ${eigenschaft.Symbol}<br>
+                    <strong>Lewis-Formel:</strong> ${eigenschaft.Lewis}`;
+        }
+
+        function updateTabelle() {
+            const reaktion1 = document.getElementById('reaktion1').value;
+            const reaktion2 = document.getElementById('reaktion2').value;
+            const tabelle = document.getElementById('vergleichstabelle');
+            const daten1 = reaktionsDaten[reaktion1];
+            const daten2 = reaktionsDaten[reaktion2];
+            
+            let html = `<tr><th>Eigenschaft</th><th>${reaktion1}</th><th>${reaktion2}</th></tr>`;
+
+            for (let eigenschaft in daten1) {
+                if (typeof daten1[eigenschaft] === 'object') {
+                    html += `<tr><td>${eigenschaft}</td><td>${formatiereEigenschaft(daten1[eigenschaft])}</td><td>${formatiereEigenschaft(daten2[eigenschaft])}</td></tr>`;
+                } else {
+                    html += `<tr><td>${eigenschaft}</td><td>${daten1[eigenschaft]}</td><td>${daten2[eigenschaft]}</td></tr>`;
+                }
+            }
+
+            tabelle.innerHTML = html;
+        }
+
+        function showText(topic) {
+            const texts = {
+                induktiv: "Induktiver Effekt (-I/+I):\nElektronegative Atome oder Gruppen entziehen Elektronendichte durch σ-Bindungen, destabilisieren benachbarte C-Atome und beeinflussen so die Reaktivität.",
+                mesomer: "Mesomerer Effekt (-M/+M):\nSubstituenten mit freien Elektronenpaaren oder Mehrfachbindungen können durch π-Elektronen-Delokalisierung die Elektronendichte im Molekül erhöhen (+M) oder verringern (-M), was die Stabilität und Reaktivität beeinflusst.",
+                markovnikov: "Markovnikov-Regel:\nBei der Addition von HX an asymmetrische Alkene bindet das Wasserstoffatom bevorzugt an das C-Atom mit den meisten Wasserstoffatomen, wodurch das stabilere Carbokation entsteht.",
+                credits: "Website created by Levi and powered by GitHub. Project by Levi, Lukas, and Matthes. All rights reserved. [2025]"
+            };
+            
+            const container = document.getElementById("text-container");
+            container.innerText = texts[topic];
+            container.style.display = "block";
+            container.classList.remove("pulse");
+            void container.offsetWidth; // Trick to restart animation
+            container.classList.add("pulse");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            erstelleOptionen(document.getElementById('reaktion1'));
+            erstelleOptionen(document.getElementById('reaktion2'));
+
+            document.getElementById('reaktion1').addEventListener('change', updateTabelle);
+            document.getElementById('reaktion2').addEventListener('change', updateTabelle);
+            
+            updateTabelle();
+        });
+    </script>
+</body>
+</html>
+
